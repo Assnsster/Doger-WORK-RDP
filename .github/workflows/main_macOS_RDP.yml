@@ -1,17 +1,22 @@
-# https://github.com/dikeckaan/MacOS-Workflow-VNC
-# https://gist.github.com/nateware/3915757?permalink_comment_id=3369670
+name: Tmate session on macOS
 
-name: CI Mac-OS
-on: 
-  workflow_dispatch:
-defaults:
-  run:
-    shell: bash
+on: [push, pull_request]
 
 jobs:
-  build:
+  tmate-session:
     runs-on: macos-latest
+
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v2
+      - name: Set up Tmate session
+        run: |
+          # Cài đặt tmate trên macOS
+          brew install tmate
+
+          # Tạo phiên tmate và in ra thông tin kết nối
+          tmate -S /tmp/tmate.sock new-session -d
+          tmate -S /tmp/tmate.sock wait tmate-ready
+          echo "Tmate SSH: $(tmate -S /tmp/tmate.sock display -p '#{tmate_ssh}')"
+          echo "Tmate Web: $(tmate -S /tmp/tmate.sock display -p '#{tmate_web}')"
+
+          # Duy trì phiên làm việc để người dùng có thể kết nối
+          while true; do sleep 60; done
